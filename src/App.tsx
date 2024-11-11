@@ -1,32 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChatInput } from './components/ChatInput';
 import { sendMessage } from './services/api';
+import { MessageStorage, StoredMessage } from './services/MessageStorage';
+import { ChatMessage } from './components/ChatMessage';
+import { DateDivider } from './components/DateDivider';
 import './styles/App.css';
 
-interface Message {
-  type: 'user' | 'assistant';
-  content: string;
-}
-
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const messageStorage = new MessageStorage();
 
-  const handleSendMessage = async (message: string) => {
+  // 加载历史消息
+  useEffect(() => {
+    const loadMessages = async () => {
+      const storedMessages = await messageStorage.getRecentMessages(7); // 加载最近7天的消息
+      setMessages(storedMessages);
+    };
+    loadMessages();
+  }, []);
+
+  const handleSendMessage = async (content: string) => {
     if (isLoading) return;
 
-    setMessages(prev => [...prev, {
+    // 保存用户消息
+    const userMessage = await messageStorage.saveMessage({
       type: 'user',
-      content: message
-    }]);
+      content
+    });
+    setMessages(prev => [...prev, userMessage]);
 
     setIsLoading(true);
     try {
-      const response = await sendMessage(message);
-      setMessages(prev => [...prev, {
+      const response = await sendMessage(content);
+      
+      // 保存助手消息
+      const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
         content: response
-      }]);
+      });
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -34,14 +47,30 @@ const App: React.FC = () => {
     }
   };
 
+  const renderMessages = () => {
+    let currentDate = '';
+    return messages.map((msg, index) => {
+      const messageDate = new Date(msg.timestamp).toDateString();
+      const showDateDivider = messageDate !== currentDate;
+      
+      if (showDateDivider) {
+        currentDate = messageDate;
+        return (
+          <React.Fragment key={msg.id}>
+            <DateDivider timestamp={msg.timestamp} />
+            <ChatMessage message={msg} />
+          </React.Fragment>
+        );
+      }
+      
+      return <ChatMessage key={msg.id} message={msg} />;
+    });
+  };
+
   return (
     <div className="app-container">
       <div className="messages-container">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.type}-message`}>
-            {msg.content}
-          </div>
-        ))}
+        {renderMessages()}
         {isLoading && (
           <div className="loading-message">
             正在思考...

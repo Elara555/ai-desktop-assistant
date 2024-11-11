@@ -1,0 +1,28 @@
+.date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.date-text {
+  background: #f5f5f5;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+  z-index: 1;
+}
+
+.date-divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e0e0e0;
+  top: 50%;
+  z-index: 0;
+} 
