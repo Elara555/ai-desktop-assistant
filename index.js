@@ -7,6 +7,7 @@ try {
 
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
+const { setupDesktopControlIPC } = require('./src/main/ipc/desktop')
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -22,6 +23,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  setupDesktopControlIPC();
   createWindow()
 
   app.on('activate', () => {

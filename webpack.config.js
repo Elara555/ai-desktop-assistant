@@ -37,7 +37,16 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx']
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    fallback: {
+      "fs": false,
+      "path": false,
+      "electron": false
+    }
+  },
+  externals: {
+    '@nut-tree/nut-js': 'commonjs @nut-tree/nut-js',
+    'electron': 'commonjs electron'
   },
   plugins: [
     new Dotenv()
