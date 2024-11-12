@@ -6,7 +6,8 @@
     "start": "concurrently \"npm run watch\" \"npm run electron-dev\"",
     "watch": "webpack --watch",
     "electron-dev": "nodemon --watch dist --exec electron .",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "test:desktop": "ts-node src/services/test-desktop-control.ts"
   },
   "keywords": [],
   "author": "",
