@@ -1,12 +1,12 @@
-import { mouse, keyboard, Point, screen, Key } from '@nut-tree/nut-js';
+const { mouse, keyboard, Point, screen } = require('@nut-tree/nut-js');
 
-export class DesktopControlService {
+class DesktopControlService {
   // 鼠标控制
-  public async moveMouse(x: number, y: number) {
+  async moveMouse(x, y) {
     await mouse.move([new Point(x, y)]);
   }
 
-  public async mouseClick(button: 'left' | 'right' = 'left') {
+  async mouseClick(button = 'left') {
     if (button === 'left') {
       await mouse.leftClick();
     } else {
@@ -14,23 +14,25 @@ export class DesktopControlService {
     }
   }
 
-  public async mouseDrag(x: number, y: number) {
+  async mouseDrag(x, y) {
     await mouse.drag([new Point(x, y)]);
   }
 
   // 键盘控制
-  public async typeString(text: string) {
+  async typeString(text) {
     await keyboard.type(text);
   }
 
-  public async keyPress(key: Key) {
+  async keyPress(key) {
     await keyboard.pressKey(key);
   }
 
   // 获取屏幕信息
-  public async getScreenSize() {
+  async getScreenSize() {
     const width = await screen.width();
     const height = await screen.height();
     return { width, height };
   }
 }
+
+module.exports = DesktopControlService;
