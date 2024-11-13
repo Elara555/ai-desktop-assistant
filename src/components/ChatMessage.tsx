@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { StoredMessage } from '../services/MessageStorage';
 import '../styles/ChatMessage.css';
 
@@ -18,7 +19,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   return (
     <div className={`message-wrapper ${message.type}`}>
       <div className={`message ${message.type}-message`}>
-        <div className="message-content">{message.content}</div>
+        <div className="message-content">
+          <ReactMarkdown>
+            {message.content}
+          </ReactMarkdown>
+        </div>
         <div className="message-time">{formatTime(message.timestamp)}</div>
       </div>
     </div>

@@ -1,24 +1,16 @@
 const { ipcMain } = require('electron');
-const DesktopControlMain = require('../services/DesktopControlMain');
+const desktopControl = require('../services/DesktopControlMain');
 
-const desktopService = new DesktopControlMain();
-
-function setupDesktopControlIPC() {
-  ipcMain.handle('desktop:moveMouse', async (_, x, y) => {
-    return await desktopService.moveMouse(x, y);
+function setupDesktopIPC() {
+  // 处理屏幕尺寸请求
+  ipcMain.handle('computer:getScreenSize', async () => {
+    return await desktopControl.getScreenSize();
   });
 
-  ipcMain.handle('desktop:mouseClick', async (_, button = 'left') => {
-    return await desktopService.mouseClick(button);
-  });
-
-  ipcMain.handle('desktop:typeString', async (_, text) => {
-    return await desktopService.typeString(text);
-  });
-
-  ipcMain.handle('desktop:getScreenSize', async () => {
-    return await desktopService.getScreenSize();
+  // 处理计算机控制动作
+  ipcMain.handle('computer:action', async (_, action, params) => {
+    return await desktopControl.handleComputerAction(action, params);
   });
 }
 
-module.exports = { setupDesktopControlIPC }; 
+module.exports = { setupDesktopIPC }; 
