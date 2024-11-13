@@ -1,6 +1,6 @@
 const { mouse, keyboard, Point, screen } = require('@nut-tree/nut-js');
 
-class DesktopControlService {
+class DesktopControlMain {
   // 鼠标控制
   async moveMouse(x, y) {
     await mouse.move([new Point(x, y)]);
@@ -35,4 +35,4 @@ class DesktopControlService {
   }
 }
 
-module.exports = DesktopControlService;
+module.exports = DesktopControlMain;

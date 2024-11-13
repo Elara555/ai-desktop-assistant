@@ -1,7 +1,7 @@
 const { ipcMain } = require('electron');
-const DesktopControlService = require('../services/DesktopControlService');
+const DesktopControlMain = require('../services/DesktopControlMain');
 
-const desktopService = new DesktopControlService();
+const desktopService = new DesktopControlMain();
 
 function setupDesktopControlIPC() {
   ipcMain.handle('desktop:moveMouse', async (_, x, y) => {

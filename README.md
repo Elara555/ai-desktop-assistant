@@ -1,34 +1,37 @@
-# AI Desktop Assistant 项目说明文档
+# AI Desktop Assistant
 
-## 项目结构
-ai-desktop-assistant/
-├── src/
-│   ├── components/
-│   │   └── ChatInput.tsx
-│   ├── services/
-│   │   └── api.ts
-│   ├── styles/
-│   │   ├── App.css
-│   │   └── ChatInput.css
-│   └── App.tsx
-├── .babelrc
-├── .env
-├── .env.example
-├── .gitignore
-├── index.html
-├── index.js
-├── package.json
-├── renderer.js
-├── tsconfig.json
-└── webpack.config.js
+基于 Electron + React + TypeScript 的 AI 桌面助手，使用 Claude API 提供智能对话服务。
+
+## 特性
+- 智能对话
+- 消息持久化
+- 优雅的界面设计
+- 实时响应
+- 桌面控制功能 【新增】
 
 ## 技术栈
-- 前端：React 18 + TypeScript
-- 构建：Webpack 5 + Babel 7
-- 运行时：Electron
-- 样式：CSS Modules（计划迁移到 Emotion）
+- Electron
+- React
+- TypeScript
+- Claude API
+- @nut-tree/nut-js 【新增】
 
-## 已完成功能
+## 更新日志
+
+### 2024-03-12
+- ✨ 集成桌面控制功能
+- 🎨 添加爱心绘制演示
+- 🔄 优化 IPC 通信
+- 🐛 修复按钮位置重叠问题
+
+### 2024-03-11
+- 🎉 项目初始化
+- ✨ 基础对话功能
+- 💾 消息持久化
+- 🎨 界面美化
+
+## 开发说明
+
 1. 基础架构
    - TypeScript 支持
    - Webpack 配置
