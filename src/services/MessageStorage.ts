@@ -1,25 +1,42 @@
+export interface ToolOutput {
+  type: 'text' | 'image' | 'audio' | null;
+  content: string;
+}
+
 export interface StoredMessage {
   id: string;
   type: 'user' | 'assistant';
   content: string;
   timestamp: number;
+  toolResponse?: {
+    toolName: string;
+    output: ToolOutput;
+  }
 }
 
 export class MessageStorage {
   private readonly STORAGE_KEY = 'chat_messages';
   
   // 保存新消息
-  async saveMessage(message: Omit<StoredMessage, 'id' | 'timestamp'>): Promise<StoredMessage> {
+  async saveMessage(message: {
+    type: 'user' | 'assistant';
+    content: string;
+    toolResponse?: {
+      toolName: string;
+      output: ToolOutput;
+    }
+  }): Promise<StoredMessage> {
     const storedMessage: StoredMessage = {
-      ...message,
-      id: crypto.randomUUID(),
-      timestamp: Date.now()
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      ...message
     };
 
     const messages = await this.getAllMessages();
     messages.push(storedMessage);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(messages));
     
+    console.log('保存的消息格式:', storedMessage);
     return storedMessage;
   }
 

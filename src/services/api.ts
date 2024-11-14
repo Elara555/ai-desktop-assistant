@@ -36,6 +36,22 @@ interface APIResponse {
   };
 }
 
+export interface ToolOutput {
+  type: 'text' | 'image' | 'audio' | null;
+  content: string;
+}
+
+export interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;      // 基础文本内容
+  timestamp: number;
+  toolResponse?: {      // 新增工具响应字段
+    toolName: string;
+    output: ToolOutput;
+  }
+}
+
 export const sendMessage = async (message: string) => {
   console.log('Sending message to API:', message);
 

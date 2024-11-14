@@ -5,6 +5,7 @@ import { MessageStorage, StoredMessage } from './services/MessageStorage';
 import { ChatMessage } from './components/ChatMessage';
 import { DateDivider } from './components/DateDivider';
 import './styles/App.css';
+import path from 'path';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<StoredMessage[]>([]);
@@ -23,22 +24,29 @@ const App: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     if (isLoading) return;
 
-    // 保存用户消息
+    // 测试用户消息格式
     const userMessage = await messageStorage.saveMessage({
       type: 'user',
       content
     });
+    console.log('用户消息格式:', userMessage);
     setMessages(prev => [...prev, userMessage]);
 
     setIsLoading(true);
     try {
-      const response = await sendMessage(content);
-      
-      // 保存助手消息
+      // 测试助手消息格式
       const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
-        content: response
+        content: '测试回复',
+        toolResponse: {
+          toolName: 'screenshot',
+          output: {
+            type: 'image',
+            content: `C:\\Users\\sense\\Desktop\\ai-desktop-assistant\\screenshot-1731577972056.png`
+          }
+        }
       });
+      console.log('助手消息格式:', assistantMessage);
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
