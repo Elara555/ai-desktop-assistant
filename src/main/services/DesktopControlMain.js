@@ -18,25 +18,33 @@ class DesktopControlMain {
       const fileName = `screenshot-${Date.now()}.png`;
       const filePath = path.join(screenshotDir, fileName);
       
-      console.log('Saving screenshot to:', filePath);
+      console.log('Attempting to save screenshot to:', filePath);
       
-      // 修改这里：直接传递文件路径给 capture 方法
+      // 截图
       await screen.capture(filePath);
       
-      // 验证文件是否已创建
-      const fileExists = await fs.access(filePath)
+      // 先检查根目录
+      const rootFilePath = path.join(process.cwd(), fileName);
+      console.log('Checking root directory for:', rootFilePath);
+      
+      let actualFilePath = filePath;
+      
+      // 如果文件在根目录，则移动到目标目录
+      const rootFileExists = await fs.access(rootFilePath)
         .then(() => true)
         .catch(() => false);
         
-      if (!fileExists) {
-        throw new Error('Screenshot file was not created');
+      if (rootFileExists) {
+        console.log('Found screenshot in root directory, moving to:', filePath);
+        await fs.rename(rootFilePath, filePath);
+        actualFilePath = filePath;
       }
       
-      console.log('Screenshot saved successfully to:', filePath);
+      console.log('Screenshot saved successfully to:', actualFilePath);
       
       return { 
         output: 'Screenshot saved successfully',
-        filePath: filePath
+        filePath: actualFilePath
       };
     } catch (error) {
       console.error('Screenshot error:', error);
