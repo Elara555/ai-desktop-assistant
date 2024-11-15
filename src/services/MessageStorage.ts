@@ -1,7 +1,4 @@
-export interface ToolOutput {
-  type: 'text' | 'image' | 'audio' | null;
-  content: string;
-}
+import { ToolOutput } from './types';
 
 export interface StoredMessage {
   id: string;

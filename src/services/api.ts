@@ -1,6 +1,7 @@
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
-import desktopControl, { ToolResult } from './DesktopControlService';
+import desktopControl from './DesktopControlService';
+import { ToolResult, ToolOutput } from './types';
 
 // 添加类型定义
 interface TextContent {
@@ -34,11 +35,6 @@ interface APIResponse {
     input_tokens: number;
     output_tokens: number;
   };
-}
-
-export interface ToolOutput {
-  type: 'text' | 'image' | 'audio' | null;
-  content: string;
 }
 
 export interface Message {

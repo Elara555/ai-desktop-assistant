@@ -4,6 +4,7 @@ import { sendMessage } from './services/api';
 import { MessageStorage, StoredMessage } from './services/MessageStorage';
 import { ChatMessage } from './components/ChatMessage';
 import { DateDivider } from './components/DateDivider';
+import { ToolOutput } from './services/types';
 import './styles/App.css';
 import path from 'path';
 
@@ -24,31 +25,40 @@ const App: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     if (isLoading) return;
 
-    // 保存用户消息
-    const userMessage = await messageStorage.saveMessage({
-      type: 'user',
-      content
-    });
-    setMessages(prev => [...prev, userMessage]);
-
-    setIsLoading(true);
     try {
+      // 保存用户消息
+      const userMessage = await messageStorage.saveMessage({
+        type: 'user',
+        content
+      });
+      setMessages(prev => [...prev, userMessage]);
+
+      setIsLoading(true);
+
       // 调用 API 获取 AI 回应和工具响应
       const { response, toolResult } = await sendMessage(content);
       
-      // 使用实际的工具响应构造消息
+      // 构造助手消息时添加类型检查
+      const toolResponse = toolResult?.toolOutput ? {
+        toolName: 'Computer Control',
+        output: toolResult.toolOutput as ToolOutput
+      } : undefined;
+
       const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
         content: response,
-        toolResponse: toolResult?.toolOutput ? {
-          toolName: 'Computer Control',
-          output: toolResult.toolOutput
-        } : undefined
+        toolResponse
       });
       
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
+      // 可以添加错误提示
+      const errorMessage = await messageStorage.saveMessage({
+        type: 'assistant',
+        content: '抱歉，发生了一些错误 😢'
+      });
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }

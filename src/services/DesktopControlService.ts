@@ -1,13 +1,5 @@
 import { ipcRenderer, shell } from 'electron';
-import { ToolOutput } from './MessageStorage';
-
-export interface ToolResult {
-  output?: string;
-  error?: string;
-  base64_image?: string;
-  filePath?: string;
-  toolOutput?: ToolOutput;
-}
+import { ToolOutput, ToolResult, MouseActionType } from './types';
 
 export class DesktopControlService {
   async getScreenSize(): Promise<{ width: number; height: number }> {
@@ -27,7 +19,7 @@ export class DesktopControlService {
 
       // 构造工具输出格式
       const toolOutput: ToolOutput = {
-        type: 'image',
+        type: 'screenshot',
         content: result.filePath  // 使用实际的文件路径
       };
 
