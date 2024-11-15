@@ -24,29 +24,30 @@ const App: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     if (isLoading) return;
 
-    // 测试用户消息格式
+    // 保存用户消息
     const userMessage = await messageStorage.saveMessage({
       type: 'user',
       content
     });
-    console.log('用户消息格式:', userMessage);
     setMessages(prev => [...prev, userMessage]);
 
     setIsLoading(true);
     try {
-      // 测试助手消息格式
+      // 调用 API 获取 AI 回应
+      const response = await sendMessage(content);
+    
       const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
-        content: '测试回复',
+        content: response,  // 使用实际的 AI 回应
         toolResponse: {
-          toolName: 'screenshot',
-          output: {
-            type: 'image',
-            content: `C:\\Users\\sense\\Desktop\\ai-desktop-assistant\\screenshot-1731577972056.png`
-          }
+          toolName: "测试工具",
+        output: {
+          type: 'image' as const,
+          content: 'C:/Users/sense/Desktop/ai-desktop-assistant/screenshot-1731485738925.png'
         }
-      });
-      console.log('助手消息格式:', assistantMessage);
+      }
+    });
+      
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
