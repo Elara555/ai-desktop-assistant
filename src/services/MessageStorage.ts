@@ -1,4 +1,8 @@
+import { Message } from './api';
 import { ToolOutput } from './types';
+
+const STORAGE_KEY = 'chat_messages';
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export interface StoredMessage {
   id: string;
@@ -8,50 +12,49 @@ export interface StoredMessage {
   toolResponse?: {
     toolName: string;
     output: ToolOutput;
-  }
+  };
 }
 
 export class MessageStorage {
-  private readonly STORAGE_KEY = 'chat_messages';
-  
-  // 保存新消息
-  async saveMessage(message: {
-    type: 'user' | 'assistant';
-    content: string;
-    toolResponse?: {
-      toolName: string;
-      output: ToolOutput;
+  private messages: StoredMessage[] = [];
+
+  constructor() {
+    // 从 localStorage 加载消息
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      this.messages = JSON.parse(stored);
     }
-  }): Promise<StoredMessage> {
-    const storedMessage: StoredMessage = {
-      id: Date.now().toString(),
+  }
+
+  private saveToStorage(): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.messages));
+  }
+
+  async getRecentMessages(days: number): Promise<StoredMessage[]> {
+    const cutoff = Date.now() - (days * MS_PER_DAY);
+    return this.messages.filter(msg => msg.timestamp >= cutoff);
+  }
+
+  async saveMessage(message: Partial<StoredMessage>): Promise<StoredMessage> {
+    const newMessage: StoredMessage = {
+      id: crypto.randomUUID(),
+      type: message.type || 'user',
+      content: message.content || '',
       timestamp: Date.now(),
-      ...message
+      toolResponse: message.toolResponse
     };
 
-    const messages = await this.getAllMessages();
-    messages.push(storedMessage);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(messages));
-    
-    console.log('保存的消息格式:', storedMessage);
-    return storedMessage;
+    this.messages.push(newMessage);
+    this.saveToStorage();  // 保存到 localStorage
+    return newMessage;
   }
 
-  // 获取所有消息
-  async getAllMessages(): Promise<StoredMessage[]> {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+  getMessages(): StoredMessage[] {
+    return this.messages;
   }
 
-  // 获取最近N天的消息
-  async getRecentMessages(days: number): Promise<StoredMessage[]> {
-    const messages = await this.getAllMessages();
-    const cutoff = Date.now() - (days * 24 * 60 * 60 * 1000);
-    return messages.filter(msg => msg.timestamp >= cutoff);
-  }
-
-  // 清除所有消息
-  async clearMessages(): Promise<void> {
-    localStorage.removeItem(this.STORAGE_KEY);
+  clear(): void {
+    this.messages = [];
+    localStorage.removeItem(STORAGE_KEY);  // 清除 localStorage
   }
 } 

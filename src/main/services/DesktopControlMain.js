@@ -1,4 +1,4 @@
-const { screen } = require('@nut-tree/nut-js');
+const { screen, mouse, Point } = require('@nut-tree/nut-js');
 const path = require('path');
 const fs = require('fs').promises;
 const { app } = require('electron');
@@ -57,8 +57,61 @@ class DesktopControlMain {
     
     try {
       switch (action) {
+        case 'mouse_move':
+          const { x, y } = params;
+          const currentPos = await mouse.getPosition();
+          await mouse.setPosition(new Point(x, y));
+          return {
+            from: { x: currentPos.x, y: currentPos.y },
+            to: { x, y }
+          };
+
+        case 'left_click':
+          await mouse.leftClick();
+          const leftClickPos = await mouse.getPosition();
+          return {
+            position: { x: leftClickPos.x, y: leftClickPos.y }
+          };
+
+        case 'right_click':
+          await mouse.rightClick();
+          const rightClickPos = await mouse.getPosition();
+          return {
+            position: { x: rightClickPos.x, y: rightClickPos.y }
+          };
+
+        case 'middle_click':
+          await mouse.click(2);  // 中键点击
+          const middleClickPos = await mouse.getPosition();
+          return {
+            position: { x: middleClickPos.x, y: middleClickPos.y }
+          };
+
+        case 'double_click':
+          await mouse.doubleClick();
+          const doubleClickPos = await mouse.getPosition();
+          return {
+            position: { x: doubleClickPos.x, y: doubleClickPos.y }
+          };
+
+        case 'left_click_drag':
+          const dragStart = await mouse.getPosition();
+          await mouse.drag(new Point(params.x, params.y));
+          const dragEnd = await mouse.getPosition();
+          return {
+            from: { x: dragStart.x, y: dragStart.y },
+            to: { x: dragEnd.x, y: dragEnd.y }
+          };
+
+        case 'cursor_position':
+          const pos = await mouse.getPosition();
+          return {
+            position: { x: pos.x, y: pos.y }
+          };
+
         case 'screenshot':
           return await this.takeScreenshot();
+
         default:
           throw new Error(`Unsupported action: ${action}`);
       }

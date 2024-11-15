@@ -1,40 +1,69 @@
-// 基础工具输出类型
-export type ToolOutputType = 'screenshot' | 'mouse' | 'text' | 'audio' | null;
-
-// 鼠标操作类型
-export type MouseActionType = 
+// 1. 对标官方的操作类型和输入输出
+export type ComputerAction = 
+  | 'key'
+  | 'type'
   | 'mouse_move'
   | 'left_click'
+  | 'left_click_drag'
   | 'right_click'
   | 'middle_click'
   | 'double_click'
-  | 'left_click_drag';
+  | 'screenshot'
+  | 'cursor_position';
 
-// 截图输出
+// 官方工具输入参数
+export interface ComputerToolInput {
+  action: ComputerAction;
+  text?: string;
+  coordinate?: [number, number];
+}
+
+// 官方工具结果
+export interface ComputerToolResult {
+  output?: string;
+  error?: string;
+  base64_image?: string;
+}
+
+// 2. 我们自己的展示类型定义
+export type ToolOutputType = 'screenshot' | 'mouse' | 'keyboard' | 'text' | 'audio' | null;
+
+// 基础位置接口
+export interface Position {
+  x: number;
+  y: number;
+}
+
+// 展示用的输出接口
 export interface ScreenshotOutput {
   type: 'screenshot';
   filePath: string;
 }
 
-// 鼠标操作输出
 export interface MouseOutput {
   type: 'mouse';
-  action: MouseActionType;
+  action: ComputerAction;
   positions: {
-    from: { x: number; y: number };
-    to: { x: number; y: number };
+    from: Position;
+    to: Position;
   };
   timestamp: number;
-  screenshotPath?: string;
 }
 
-// 统一的工具输出接口
+export interface KeyboardOutput {
+  type: 'keyboard';
+  action: ComputerAction;
+  content: string;
+  timestamp: number;
+}
+
+// 统一的工具输出接口（用于前端展示）
 export interface ToolOutput {
   type: ToolOutputType;
-  content: string | ScreenshotOutput | MouseOutput;
+  content: string | ScreenshotOutput | MouseOutput | KeyboardOutput;
 }
 
-// 工具结果接口
+// 最终的工具结果（包含官方结果和展示结果）
 export interface ToolResult {
   output?: string;
   error?: string;

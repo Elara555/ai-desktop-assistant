@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { StoredMessage } from '../services/MessageStorage';
-import { ScreenshotOutput, MouseOutput } from '../services/types';
+import { ComputerAction, ScreenshotOutput, MouseOutput } from '../services/types';
 import '../styles/ChatMessage.css';
 
 interface ChatMessageProps {
@@ -24,8 +24,24 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return `file:///${normalizedPath}`;
   };
 
+  const getOperationIcon = (action: ComputerAction): string => {
+    const icons: Record<ComputerAction, string> = {
+      'mouse_move': '↗️',
+      'left_click': '🖱️',
+      'right_click': '👆',
+      'double_click': '👆👆',
+      'middle_click': '🖱️',
+      'left_click_drag': '✋',
+      'cursor_position': '📍',
+      'key': '⌨️',
+      'type': '⌨️',
+      'screenshot': '📸'
+    };
+    return icons[action] || '🖱️';
+  };
+
   const renderToolResponse = () => {
-    if (!message.toolResponse) return null;
+    if (!message.toolResponse?.output) return null;
 
     const { output } = message.toolResponse;
 
@@ -59,28 +75,34 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         return null;
       
       case 'mouse':
-        if (typeof output.content === 'object' && output.content !== null) {
-          const mouseOutput = output.content as MouseOutput;
-          return (
-            <div className="mouse-operation-info">
-              <div className="operation-type">
-                {mouseOutput.action}
-              </div>
-              <div className="positions">
-                <span>从: ({mouseOutput.positions.from.x}, {mouseOutput.positions.from.y})</span>
-                <span>到: ({mouseOutput.positions.to.x}, {mouseOutput.positions.to.y})</span>
-              </div>
-              {mouseOutput.screenshotPath && (
-                <img 
-                  src={getImageSrc(mouseOutput.screenshotPath)}
-                  alt="Operation Screenshot"
-                  className="operation-screenshot"
-                />
-              )}
+        const mouseOutput = output.content as MouseOutput;
+        if (!mouseOutput?.positions) return null;
+        
+        const { from, to } = mouseOutput.positions;
+        if (!from || !to) return null;
+
+        return (
+          <div className="mouse-operation-info">
+            <div className="operation-details">
+              {getOperationIcon(mouseOutput.action)}
+              <span className="operation-type">
+                {mouseOutput.action === 'mouse_move' ? '鼠标移动' :
+                 mouseOutput.action === 'cursor_position' ? '鼠标位置' :
+                 mouseOutput.action === 'left_click_drag' ? '拖拽' :
+                 '鼠标点击'}
+              </span>
+              <span className="coordinates">
+                {mouseOutput.action === 'mouse_move' || mouseOutput.action === 'left_click_drag' ? 
+                  `从: (${from.x}, ${from.y}) → 到: (${to.x}, ${to.y})` :
+                  `当前位置: (${from.x}, ${from.y})`
+                }
+              </span>
+              <span className="timestamp">
+                {formatTime(mouseOutput.timestamp)}
+              </span>
             </div>
-          );
-        }
-        return null;
+          </div>
+        );
       
       default:
         return null;

@@ -112,4 +112,33 @@
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
+}
+
+.mouse-operation-info {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+.operation-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.operation-type {
+  font-weight: 500;
+  color: #666;
+}
+
+.coordinates {
+  color: #444;
+  font-family: monospace;
+}
+
+.timestamp {
+  color: #999;
+  margin-left: auto;
 } 
