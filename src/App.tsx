@@ -33,20 +33,18 @@ const App: React.FC = () => {
 
     setIsLoading(true);
     try {
-      // 调用 API 获取 AI 回应
-      const response = await sendMessage(content);
-    
+      // 调用 API 获取 AI 回应和工具响应
+      const { response, toolResult } = await sendMessage(content);
+      
+      // 使用实际的工具响应构造消息
       const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
-        content: response,  // 使用实际的 AI 回应
-        toolResponse: {
-          toolName: "测试工具",
-        output: {
-          type: 'image' as const,
-          content: 'C:/Users/sense/Desktop/ai-desktop-assistant/screenshot-1731485738925.png'
-        }
-      }
-    });
+        content: response,
+        toolResponse: toolResult?.toolOutput ? {
+          toolName: 'Computer Control',
+          output: toolResult.toolOutput
+        } : undefined
+      });
       
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {

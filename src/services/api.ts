@@ -1,6 +1,6 @@
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
-import desktopControl from './DesktopControlService';
+import desktopControl, { ToolResult } from './DesktopControlService';
 
 // 添加类型定义
 interface TextContent {
@@ -52,7 +52,14 @@ export interface Message {
   }
 }
 
-export const sendMessage = async (message: string) => {
+// 在文件开头添加返回类型定义
+interface SendMessageResponse {
+  response: string;
+  toolResult?: ToolResult;
+}
+
+// 修改 sendMessage 函数的返回类型
+export const sendMessage = async (message: string): Promise<SendMessageResponse> => {
   console.log('Sending message to API:', message);
 
   if (!API_KEY) {
@@ -122,17 +129,16 @@ export const sendMessage = async (message: string) => {
       
       console.log('Screenshot result:', toolResult);
 
-      // 如果有截图，构建 markdown 图片语法
-      if (toolResult.base64_image) {
-        const imageMarkdown = `${responseText}
-
-![screenshot](data:image/png;base64,${toolResult.base64_image})`;
-        console.log('Returning image markdown');
-        return imageMarkdown;
-      }
+      return {
+        response: responseText,
+        toolResult
+      };
     }
 
-    return responseText;
+    // 普通文本消息
+    return {
+      response: responseText
+    };
   } catch (error) {
     console.error('API Error:', error);
     throw error;
