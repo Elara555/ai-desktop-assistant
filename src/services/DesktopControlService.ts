@@ -8,10 +8,16 @@ import {
 } from './types';
 
 export class DesktopControlService {
+  private ipcRenderer: typeof ipcRenderer;
   private readonly SCREENSHOT_DELAY = 2000; // 2秒，对标官方的 _screenshot_delay
   
+  constructor() {
+    // 允许在测试时注入 mock
+    this.ipcRenderer = (global as any).ipcRenderer || ipcRenderer;
+  }
+
   async getScreenSize(): Promise<{ width: number; height: number }> {
-    return await ipcRenderer.invoke('computer:getScreenSize');
+    return await this.ipcRenderer.invoke('computer:getScreenSize');
   }
 
   async handleComputerUseRequest(name: string, input: ComputerToolInput): Promise<ToolResult> {
@@ -33,7 +39,7 @@ export class DesktopControlService {
         }
 
         // 执行鼠标操作
-        result = await ipcRenderer.invoke('computer:action', action, {
+        result = await this.ipcRenderer.invoke('computer:action', action, {
           x: coordinate[0],
           y: coordinate[1]
         });
@@ -67,7 +73,7 @@ export class DesktopControlService {
           throw new Error(`coordinate is not accepted for ${action}`);
         }
 
-        result = await ipcRenderer.invoke('computer:action', action, { text });
+        result = await this.ipcRenderer.invoke('computer:action', action, { text });
         
         toolOutput = {
           type: 'keyboard',
@@ -95,7 +101,7 @@ export class DesktopControlService {
           throw new Error(`coordinate is not accepted for ${action}`);
         }
 
-        result = await ipcRenderer.invoke('computer:action', action, null);
+        result = await this.ipcRenderer.invoke('computer:action', action, null);
 
         if (action === 'screenshot') {
           toolOutput = {
