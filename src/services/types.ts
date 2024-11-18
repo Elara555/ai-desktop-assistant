@@ -65,7 +65,14 @@ export interface ToolOutput {
 
 // 最终的工具结果（包含官方结果和展示结果）
 export interface ToolResult {
+  success: boolean;
   output?: string;
   error?: string;
   toolOutput?: ToolOutput;
+}
+
+export interface ComputerOperation {
+  action: 'screenshot' | 'move_mouse' | 'click' | 'type';
+  coordinate?: [number, number];
+  text?: string;
 } 

@@ -1,6 +1,7 @@
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 import desktopControl from './DesktopControlService';
+import { MessageStorage } from './MessageStorage';
 import { ComputerAction, ComputerToolInput, ToolResult, ToolOutput } from './types';
 
 // API 响应的类型定义
@@ -60,6 +61,19 @@ export const sendMessage = async (message: string): Promise<SendMessageResponse>
   }
   
   try {
+    // 获取历史消息
+    const messageStorage = new MessageStorage();
+    const recentMessages = await messageStorage.getRecentMessages(7); // 获取最近7天的消息
+    
+    // 转换格式
+    const messageHistory = recentMessages.map(msg => ({
+      role: msg.type,
+      content: msg.content
+    }));
+    
+    // 添加当前消息
+    messageHistory.push({ role: 'user', content: message });
+    
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -69,7 +83,7 @@ export const sendMessage = async (message: string): Promise<SendMessageResponse>
         'anthropic-beta': 'computer-use-2024-10-22'
       },
       body: JSON.stringify({
-        messages: [{ role: 'user', content: message }],
+        messages: messageHistory,  // 传递完整的对话历史
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1024,
         tools: [{

@@ -53,7 +53,8 @@ export class DesktopControlService {
 
         return {
           output: `Mouse ${action} to (${coordinate[0]}, ${coordinate[1]})`,
-          toolOutput
+          toolOutput,
+          success: true
         };
       }
 
@@ -80,7 +81,8 @@ export class DesktopControlService {
 
         return {
           output: `Keyboard ${action}: ${text}`,
-          toolOutput
+          toolOutput,
+          success: true
         };
       }
 
@@ -103,7 +105,8 @@ export class DesktopControlService {
 
           return {
             output: 'Screenshot taken successfully',
-            toolOutput
+            toolOutput,
+            success: true
           };
         }
 
@@ -123,7 +126,8 @@ export class DesktopControlService {
 
           return {
             output: `Current cursor position: (${result.position.x}, ${result.position.y})`,
-            toolOutput
+            toolOutput,
+            success: true
           };
         }
 
@@ -143,7 +147,8 @@ export class DesktopControlService {
 
         return {
           output: `Mouse ${action} at (${result.position.x}, ${result.position.y})`,
-          toolOutput
+          toolOutput,
+          success: true
         };
       }
 
@@ -151,7 +156,8 @@ export class DesktopControlService {
     } catch (error) {
       console.error('❌ 操作错误:', error);
       return { 
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : '未知错误',
+        success: false
       };
     }
   }
