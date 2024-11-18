@@ -1,4 +1,3 @@
-import { Message } from './api';
 import { ToolOutput } from './types';
 
 const STORAGE_KEY = 'chat_messages';
@@ -9,10 +8,10 @@ export interface StoredMessage {
   type: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  toolResponse?: {
+  toolResponses?: {
     toolName: string;
     output: ToolOutput;
-  };
+  }[];
 }
 
 export class MessageStorage {
@@ -41,7 +40,7 @@ export class MessageStorage {
       type: message.type || 'user',
       content: message.content || '',
       timestamp: Date.now(),
-      toolResponse: message.toolResponse
+      toolResponses: message.toolResponses
     };
 
     this.messages.push(newMessage);

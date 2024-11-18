@@ -70,6 +70,8 @@
 .tool-response {
   margin-top: 8px;
   margin-bottom: 8px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .image-container {
@@ -150,4 +152,20 @@
 .timestamp {
   color: #999;
   margin-left: auto;
+}
+
+.tool-responses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.image-container + .image-container {
+  margin-top: 12px;
+}
+
+.mouse-operation-info + .mouse-operation-info {
+  margin-top: 8px;
 } 

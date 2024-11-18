@@ -1,4 +1,53 @@
-// 1. 对标官方的操作类型和输入输出
+// 1. API 相关类型定义
+export interface TextContent {
+  type: 'text';
+  text: string;
+}
+
+export interface ToolUseContent {
+  type: 'tool_use';
+  id: string;
+  name: string;
+  input: {
+    action: ComputerAction;
+    coordinate?: [number, number];
+    text?: string;
+  };
+}
+
+export type MessageContent = TextContent | ToolUseContent;
+
+export interface APIResponse {
+  content: MessageContent[];
+  id: string;
+  model: string;
+  role: string;
+  stop_reason: string | null;
+  stop_sequence: string | null;
+  type: string;
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+  };
+}
+
+export interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  toolResponse?: {
+    toolName: string;
+    output: ToolOutput;
+  };
+}
+
+export interface SendMessageResponse {
+  response: string;
+  toolResults?: ToolResult[];
+}
+
+// 2. 计算机操作相关类型（原有的保持不变）
 export type ComputerAction = 
   | 'key'
   | 'type'

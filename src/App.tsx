@@ -36,18 +36,18 @@ const App: React.FC = () => {
       setIsLoading(true);
 
       // 调用 API 获取 AI 回应和工具响应
-      const { response, toolResult } = await sendMessage(content);
+      const { response, toolResults } = await sendMessage(content);
       
-      // 构造助手消息时添加类型检查
-      const toolResponse = toolResult?.toolOutput ? {
+      // 构造工具响应数组
+      const toolResponses = toolResults?.map(result => ({
         toolName: 'Computer Control',
-        output: toolResult.toolOutput as ToolOutput
-      } : undefined;
+        output: result.toolOutput as ToolOutput
+      }));
 
       const assistantMessage = await messageStorage.saveMessage({
         type: 'assistant',
         content: response,
-        toolResponse
+        toolResponses
       });
       
       setMessages(prev => [...prev, assistantMessage]);

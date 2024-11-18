@@ -1,59 +1,14 @@
-const API_KEY = process.env.ANTHROPIC_API_KEY;
-
+import { 
+  APIResponse, 
+  SendMessageResponse,
+  ComputerToolInput,
+  ToolResult,
+  TextContent
+} from './types';
 import desktopControl from './DesktopControlService';
 import { MessageStorage } from './MessageStorage';
-import { ComputerAction, ComputerToolInput, ToolResult, ToolOutput } from './types';
 
-// API 响应的类型定义
-interface TextContent {
-  type: 'text';
-  text: string;
-}
-
-interface ToolUseContent {
-  type: 'tool_use';
-  id: string;
-  name: string;
-  input: {
-    action: ComputerAction;  // 使用标准的 ComputerAction 类型
-    coordinate?: [number, number];
-    text?: string;
-  };
-}
-
-type MessageContent = TextContent | ToolUseContent;
-
-interface APIResponse {
-  content: MessageContent[];
-  id: string;
-  model: string;
-  role: string;
-  stop_reason: string | null;
-  stop_sequence: string | null;
-  type: string;
-  usage: {
-    input_tokens: number;
-    output_tokens: number;
-  };
-}
-
-// 消息接口（用于前端展示）
-export interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
-  toolResponse?: {
-    toolName: string;
-    output: ToolOutput;  // 使用我们的 ToolOutput 类型
-  };
-}
-
-// API 返回结果接口
-interface SendMessageResponse {
-  response: string;
-  toolResult?: ToolResult;  // 使用我们的 ToolResult 类型
-}
+const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 export const sendMessage = async (message: string): Promise<SendMessageResponse> => {
   if (!API_KEY) {
@@ -99,10 +54,6 @@ export const sendMessage = async (message: string): Promise<SendMessageResponse>
 
     const data: APIResponse = await response.json();
     
-    // 调试输出
-    console.log('\n=== API Response Details ===');
-    console.log(JSON.stringify(data, null, 2));
-
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
@@ -114,35 +65,30 @@ export const sendMessage = async (message: string): Promise<SendMessageResponse>
       responseText = textMessage.text;
     }
 
-    // 处理工具调用
-    const toolMessage = data.content.find((item): item is ToolUseContent => item.type === 'tool_use');
-    if (toolMessage) {
-      console.log('处理工具调用:', toolMessage);
-      
-      // 构造标准的工具输入
-      const toolInput: ComputerToolInput = {
-        action: toolMessage.input.action,
-        coordinate: toolMessage.input.coordinate,
-        text: toolMessage.input.text
-      };
-      
-      const toolResult = await desktopControl.handleComputerUseRequest(
-        toolMessage.name,
-        toolInput
-      );
-      
-      console.log('工具执行结果:', toolResult);
-
-      return {
-        response: responseText,
-        toolResult
-      };
+    // 处理所有工具调用
+    const toolResults: ToolResult[] = [];
+    for (const block of data.content) {
+      if (block.type === 'tool_use') {
+        const toolInput: ComputerToolInput = {
+          action: block.input.action,
+          coordinate: block.input.coordinate,
+          text: block.input.text
+        };
+        
+        const result = await desktopControl.handleComputerUseRequest(
+          block.name,
+          toolInput
+        );
+        toolResults.push(result);
+      }
     }
 
-    // 普通文本消息
+    // 统一返回格式，无论是否有工具调用
     return {
-      response: responseText
+      response: responseText,
+      toolResults: toolResults.length > 0 ? toolResults : undefined
     };
+
   } catch (error) {
     console.error('API Error:', error);
     throw error;
